@@ -1,0 +1,58 @@
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Main content with NestedScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <include layout="@layout/component_top_bar" />
+            <include layout="@layout/component_search" />
+            <include layout="@layout/component_categories" />
+            <include layout="@layout/component_section_bestsellers" />
+            <include layout="@layout/component_authors" />
+            <!-- THIN DIVIDER LINE -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grey"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <include
+                android:id="@+id/bookList"
+                layout="@layout/component_book_list" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Drawer -->
+    <LinearLayout
+        android:id="@+id/side_menu"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="16dp"
+        android:layout_gravity="start">
+
+        <TextView
+            android:text="@string/filters"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:padding="16dp"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -1,0 +1,89 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="140dp"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:layout_marginEnd="8dp"
+    android:background="@drawable/bg_book_item">
+
+    <!-- Book Cover -->
+    <ImageView
+        android:id="@+id/ivBookCover"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/book_placeholder"
+        android:background="@drawable/rounded_corners" />
+
+    <!-- Free / Price -->
+    <TextView
+        android:id="@+id/tvPrice"
+        android:text="Free"
+        android:textColor="@color/primaryColor"
+        android:textSize="12sp"
+        android:layout_marginTop="6dp"
+        android:layout_height="0dp"
+        android:layout_width="0dp"/>
+
+    <!-- Book Title -->
+    <TextView
+        android:id="@+id/tvBookTitle"
+        android:text="SPARROW'S NEST"
+        android:textStyle="bold"
+        android:textColor="@color/primaryColor"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_marginTop="2dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- Author -->
+    <TextView
+        android:id="@+id/tvAuthor"
+        android:text="Edith Vincent"
+        android:textColor="@color/grey"
+        android:textSize="12sp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <!-- Rating and Pages -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/tvRating"
+            android:text="⭐ 5.0"
+            android:textSize="12sp"
+            android:textColor="@color/primaryColor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvPages"
+            android:text="270 Pages"
+            android:textSize="12sp"
+            android:textColor="@color/grey"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Favorite Heart Icon -->
+    <ImageView
+        android:id="@+id/ivFavorite"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="end"
+        android:src="@drawable/ic_heart"
+        android:layout_marginTop="4dp"
+        app:tint="@color/primaryColor" />
+</LinearLayout>

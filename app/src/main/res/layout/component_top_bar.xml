@@ -1,0 +1,51 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:padding="8dp">
+
+    <!-- Your Top Bar (80% width) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.8"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp">
+
+        <ImageView
+            android:src="@drawable/ic_groups"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="12dp"
+            app:tint="@color/primaryColor" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/app_name"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/primaryColor"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"/>
+
+        <ImageView
+            android:src="@drawable/ic_notifications"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="12dp"
+            app:tint="@color/primaryColor"/>
+
+        <ImageView
+            android:src="@drawable/ic_bookmark"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            app:tint="@color/primaryColor"/>
+
+    </LinearLayout>
+
+</LinearLayout>

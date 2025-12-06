@@ -1,0 +1,57 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:padding="16dp">
+
+    <!-- Search Box (80% width) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="0.8"
+        android:orientation="horizontal"
+        android:background="@drawable/bg_search_box"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+
+        <!-- Search Icon -->
+        <ImageView
+            android:src="@drawable/ic_search"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            app:tint="@color/primaryColor" />
+
+        <!-- Placeholder -->
+        <TextView
+            android:text="@string/search"
+            android:textColor="@color/primaryColor"
+            android:textSize="16sp"
+            android:layout_marginStart="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <!-- Separator -->
+        <TextView
+            android:text="@string/Separator"
+            android:textSize="20sp"
+            android:textColor="@color/grey"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Filter Button -->
+        <ImageButton
+            android:id="@+id/myImageButton"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_filter"
+            android:contentDescription="@string/filters"
+            app:tint="@color/primaryColor" />
+
+    </LinearLayout>
+
+</LinearLayout>
