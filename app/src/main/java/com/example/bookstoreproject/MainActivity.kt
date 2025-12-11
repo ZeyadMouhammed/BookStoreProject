@@ -20,8 +20,8 @@ class MainActivity : AppCompatActivity() {
             when (item.itemId) {
                 R.id.nav_home -> replaceFragment(HomeFragment())
                 R.id.nav_profile -> replaceFragment(ProfileFragment())
-                R.id.nav_library -> replaceFragment(CategoriesFragment())
-                R.id.nav_bag -> replaceFragment(CartFragment())
+                R.id.nav_library -> replaceFragment(BooksFragment())
+                R.id.nav_bag -> replaceFragment(BagFragment())
             }
             true
         }

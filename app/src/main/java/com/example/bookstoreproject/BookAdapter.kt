@@ -1,5 +1,6 @@
 package com.example.bookstoreproject
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -7,8 +8,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class BookAdapter(private val books: List<Book>) :
-    RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
+class BookAdapter(
+    private val books: List<Book>
+) : RecyclerView.Adapter<BookAdapter.BookViewHolder>() {
 
     class BookViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val cover: ImageView = itemView.findViewById(R.id.ivBookCover)
@@ -32,6 +34,18 @@ class BookAdapter(private val books: List<Book>) :
         holder.author.text = book.author
         holder.rating.text = "⭐ ${book.rating}"
         holder.pages.text = "${book.pages} pages"
+
+        // Click listener to open BookDetailsActivity
+        holder.itemView.setOnClickListener { view ->
+            val context = view.context
+            val intent = Intent(context, BookDetailsActivity::class.java)
+            intent.putExtra("title", book.title)
+            intent.putExtra("author", book.author)
+            intent.putExtra("rating", book.rating)
+            intent.putExtra("pages", book.pages)
+            intent.putExtra("coverRes", book.imageRes)
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount() = books.size

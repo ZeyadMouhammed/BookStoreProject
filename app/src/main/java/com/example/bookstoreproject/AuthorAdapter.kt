@@ -1,5 +1,6 @@
 package com.example.bookstoreproject
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,14 @@ class AuthorAdapter(private val authors: List<Author>) :
         val author = authors[position]
         holder.tvAuthorName.text = author.name
         holder.imgAuthor.setImageResource(author.imageResId)
+
+        // Click listener to open AuthorDetailsActivity
+        holder.itemView.setOnClickListener { view ->
+            val context = view.context
+            val intent = Intent(context, AuthorDetailsActivity::class.java)
+            // For now, we'll use static author info in AuthorDetailsActivity
+            context.startActivity(intent)
+        }
     }
 
     override fun getItemCount(): Int = authors.size

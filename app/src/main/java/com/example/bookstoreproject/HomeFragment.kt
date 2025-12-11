@@ -110,7 +110,8 @@ class HomeFragment : Fragment() {
         val sampleBooks = listOf(
             Book("Sparrow's Nest", "Edith Vincent", 5.0, 270, R.drawable.book_placeholder),
             Book("The Silent Lake", "John Hayes", 4.8, 320, R.drawable.book_placeholder),
-            Book("Wild Forest", "Mila Rowan", 4.9, 190, R.drawable.book_placeholder)
+            Book("Wild Forest", "Mila Rowan", 4.9, 190, R.drawable.book_placeholder),
+            Book("Book C", "Author 3", 5.0, 150, R.drawable.book_placeholder)
         )
 
         rvBooks.adapter = BookAdapter(sampleBooks)
@@ -127,7 +128,8 @@ class HomeFragment : Fragment() {
         val list = listOf(
             Book("Book A", "Author 1", 4.9, 250, R.drawable.book_placeholder),
             Book("Book B", "Author 2", 4.8, 310, R.drawable.book_placeholder),
-            Book("Book C", "Author 3", 5.0, 150, R.drawable.book_placeholder)
+            Book("Book C", "Author 3", 5.0, 150, R.drawable.book_placeholder),
+            Book("Book D", "Author 2", 5.0, 150, R.drawable.book_placeholder)
         )
 
         rvTopRated.adapter = BookAdapter(list)

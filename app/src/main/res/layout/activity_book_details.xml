@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollView"
     android:layout_width="match_parent"
@@ -13,12 +14,54 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Top Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/btnBack"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_back"
+                app:tint="@color/primaryColor" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Book"
+                android:textColor="@color/primaryColor"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_bookmark"
+                app:tint="@color/primaryColor" />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="12dp"
+                android:src="@drawable/ic_share"
+                app:tint="@color/primaryColor" />
+
+        </LinearLayout>
+
         <!-- Book Cover -->
         <ImageView
             android:id="@+id/bookCover"
             android:layout_width="200dp"
             android:layout_height="300dp"
             android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
             android:scaleType="centerCrop"
             android:src="@drawable/book_placeholder" />
 
@@ -78,39 +121,35 @@
             android:orientation="horizontal"
             android:weightSum="3">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHardCover"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/custom_button"
-                android:padding="12dp"
                 android:text="Hard Cover"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/grey" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPdf"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_marginEnd="4dp"
                 android:layout_weight="1"
-                android:background="@drawable/custom_button"
-                android:padding="12dp"
                 android:text="PDF"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/grey" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAudiobook"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@drawable/custom_button"
-                android:padding="12dp"
                 android:text="Audiobook"
-                android:textColor="@color/primaryColor" />
+                android:textColor="@color/grey" />
         </LinearLayout>
-
 
         <!-- Price -->
         <TextView
@@ -125,7 +164,7 @@
             android:textStyle="bold" />
 
         <!-- Chapter Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnChapter1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,7 +173,6 @@
             android:text="Chapter 1"
             android:textColor="@color/offWhite" />
 
-        <!-- Tabs: About and Reviews -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -174,20 +212,24 @@
             android:layout_marginTop="16dp"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSample"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Sample" />
+                android:backgroundTint="@color/primaryColor"
+                android:text="Sample"
+                android:textColor="@color/offWhite" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddToBag"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:text="Add to Bag" />
+                android:backgroundTint="@color/primaryColor"
+                android:text="Add to Bag"
+                android:textColor="@color/offWhite" />
         </LinearLayout>
 
     </LinearLayout>

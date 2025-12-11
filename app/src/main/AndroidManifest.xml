@@ -11,15 +11,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BookStoreProject">
+
+        <activity android:name=".MainActivity" />
+
+        <!-- Add BookDetailsActivity -->
+        <activity android:name=".BookDetailsActivity" />
+
+        <!-- Add AuthorDetailsActivity -->
+        <activity android:name=".AuthorDetailsActivity" />
+
+        <!-- Add LoginActivity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
+        <!-- Add SignupActivity -->
+        <activity android:name=".SignUpActivity" />
+
     </application>
 
 </manifest>
