@@ -23,7 +23,7 @@ class DatabaseSeeder(private val context: Context) {
                 author = "Edith Vincent",
                 rating = 5.0,
                 pages = 270,
-                imageRes = R.drawable.book_placeholder,
+                imageRes = R.drawable.book1_cover,
                 id = 0,
                 isFavorite = false
             ),
@@ -32,7 +32,7 @@ class DatabaseSeeder(private val context: Context) {
                 author = "John Hayes",
                 rating = 4.8,
                 pages = 320,
-                imageRes = R.drawable.book_placeholder,
+                imageRes = R.drawable.book2_cover,
                 id = 0,
                 isFavorite = false
             ),
@@ -59,7 +59,7 @@ class DatabaseSeeder(private val context: Context) {
                 author = "Marcus Allen",
                 rating = 4.9,
                 pages = 310,
-                imageRes = R.drawable.book_placeholder,
+                imageRes = R.drawable.book3_cover,
                 id = 0,
                 isFavorite = false
             ),
@@ -113,7 +113,7 @@ class DatabaseSeeder(private val context: Context) {
                 author = "J.K. Rowling",
                 rating = 4.9,
                 pages = 309,
-                imageRes = R.drawable.book_placeholder,
+                imageRes = R.drawable.harry_potter_cover,
                 id = 0,
                 isFavorite = false
             ),
@@ -122,7 +122,7 @@ class DatabaseSeeder(private val context: Context) {
                 author = "George R.R. Martin",
                 rating = 4.7,
                 pages = 694,
-                imageRes = R.drawable.book_placeholder,
+                imageRes = R.drawable.game_of_thrones,
                 id = 0,
                 isFavorite = false
             ),
@@ -171,8 +171,8 @@ class DatabaseSeeder(private val context: Context) {
 
     private fun seedAuthors() {
         val authors = listOf(
-            Author("J.K. Rowling", R.drawable.book_placeholder),
-            Author("George R.R. Martin", R.drawable.book_placeholder),
+            Author("J.K. Rowling", R.drawable.jk_rowling),
+            Author("George R.R. Martin", R.drawable.george_r_r_martin),
             Author("Agatha Christie", R.drawable.book_placeholder),
             Author("Mark Twain", R.drawable.book_placeholder),
             Author("Jane Austen", R.drawable.book_placeholder),
@@ -182,7 +182,7 @@ class DatabaseSeeder(private val context: Context) {
             Author("Mila Rowan", R.drawable.book_placeholder),
             Author("Sarah Collins", R.drawable.book_placeholder),
             Author("Marcus Allen", R.drawable.book_placeholder),
-            Author("Luna Brooks", R.drawable.book_placeholder),
+            Author("Luna Brooks", R.drawable.luna_brooks),
             Author("Kevin Turner", R.drawable.book_placeholder),
             Author("Emma Stone", R.drawable.book_placeholder),
             Author("David Chen", R.drawable.book_placeholder),

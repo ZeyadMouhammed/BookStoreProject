@@ -1,5 +1,6 @@
 package com.example.bookstoreproject
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,7 +47,9 @@ class BooksAdapter(
             tvPrice.text = "Free"
 
             // Load book cover image
-            ivBookCover.setImageResource(book.imageRes)
+            ivBookCover.setImageResource(book.imageRes ?: R.drawable.book_placeholder)
+
+            Log.d("BIND_IMAGE", "Book=${book.title}, imageRes=${book.imageRes}, place holder=${R.drawable.book_placeholder}")
 
             // Update favorite icon - FIXED: correct logic
             if (book.isFavorite) {

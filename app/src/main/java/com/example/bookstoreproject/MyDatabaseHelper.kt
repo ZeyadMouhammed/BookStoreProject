@@ -11,7 +11,7 @@ class MyDatabaseHelper(context: Context) :
 
     companion object {
         private const val DATABASE_NAME = "BookStore.db"
-        private const val DATABASE_VERSION = 8
+        private const val DATABASE_VERSION = 9
 
         // Tables
         private const val TABLE_BOOKS = "Books"

@@ -44,7 +44,7 @@ class AuthorAdapter(
                 if (onAuthorClick == null) {
                     val intent = Intent(itemView.context, AuthorDetailsActivity::class.java)
                     intent.putExtra("name", author.name)
-                    intent.putExtra("imageRes", author.imageResId)
+                    intent.putExtra("imageRes", author.imageResId ?: R.drawable.book_placeholder)
                     itemView.context.startActivity(intent)
                 }
             }
