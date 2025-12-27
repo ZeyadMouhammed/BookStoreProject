@@ -1,5 +1,6 @@
 package com.example.bookstoreproject
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -24,6 +26,12 @@ class HomeFragment : Fragment() {
     private lateinit var authorAdapter: AuthorAdapter
     private val authorList = mutableListOf<Author>()
 
+    private lateinit var dbHelper: MyDatabaseHelper
+    private lateinit var rvBestsellers: RecyclerView
+    private lateinit var rvTopRated: RecyclerView
+    private lateinit var bestsellerAdapter: BooksAdapter
+    private lateinit var topRatedAdapter: BooksAdapter
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,6 +42,9 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize database helper
+        dbHelper = MyDatabaseHelper(requireContext())
 
         setupDrawer(view)
         setupCategories(view)
@@ -101,57 +112,189 @@ class HomeFragment : Fragment() {
     }
 
     // ---------------------------------------------------------
-    // Books Recycler (Horizontal)
+    // Books Recycler (Horizontal) - Bestsellers
     // ---------------------------------------------------------
     private fun setupBooksRecycler(view: View) {
-        val rvBooks = view.findViewById<RecyclerView>(R.id.rvBestsellers)
-        rvBooks.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-
-        val sampleBooks = listOf(
-            Book("Sparrow's Nest", "Edith Vincent", 5.0, 270, R.drawable.book_placeholder),
-            Book("The Silent Lake", "John Hayes", 4.8, 320, R.drawable.book_placeholder),
-            Book("Wild Forest", "Mila Rowan", 4.9, 190, R.drawable.book_placeholder),
-            Book("Book C", "Author 3", 5.0, 150, R.drawable.book_placeholder)
+        rvBestsellers = view.findViewById(R.id.rvBestsellers)
+        rvBestsellers.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
         )
 
-        rvBooks.adapter = BookAdapter(sampleBooks)
+        // Load books from database
+        val allBooks = dbHelper.getAllBooks()
+
+        // Check favorite status for each book
+        allBooks.forEach { book ->
+            book.isFavorite = dbHelper.isBookFavorited(book.id)
+        }
+
+        // If no books in database, use sample data
+        val booksToDisplay = if (allBooks.isEmpty()) {
+            listOf(
+                Book(
+                    title = "Sparrow's Nest",
+                    author = "Edith Vincent",
+                    rating = 5.0,
+                    pages = 270,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "The Silent Lake",
+                    author = "John Hayes",
+                    rating = 4.8,
+                    pages = 320,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "Wild Forest",
+                    author = "Mila Rowan",
+                    rating = 4.9,
+                    pages = 190,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "Book C",
+                    author = "Author 3",
+                    rating = 5.0,
+                    pages = 150,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                )
+            )
+        } else {
+            allBooks.take(4) // Show first 4 books
+        }
+
+        bestsellerAdapter = BooksAdapter(
+            onBookClick = { book ->
+                openBookDetails(book)
+            },
+            onFavoriteClick = { book ->
+                toggleFavorite(book)
+            }
+        )
+        rvBestsellers.adapter = bestsellerAdapter
+        bestsellerAdapter.submitList(booksToDisplay)
     }
 
+    // ---------------------------------------------------------
+    // Top Rated Recycler (Horizontal)
+    // ---------------------------------------------------------
     private fun setupTopRatedRecycler(view: View) {
-        val rvTopRated = view.findViewById<RecyclerView>(R.id.rvTopRated)
+        rvTopRated = view.findViewById(R.id.rvTopRated)
         rvTopRated.layoutManager = LinearLayoutManager(
             requireContext(),
             LinearLayoutManager.HORIZONTAL,
             false
         )
 
-        val list = listOf(
-            Book("Book A", "Author 1", 4.9, 250, R.drawable.book_placeholder),
-            Book("Book B", "Author 2", 4.8, 310, R.drawable.book_placeholder),
-            Book("Book C", "Author 3", 5.0, 150, R.drawable.book_placeholder),
-            Book("Book D", "Author 2", 5.0, 150, R.drawable.book_placeholder)
+        // Load books from database and sort by rating
+        val allBooks = dbHelper.getAllBooks()
+        val topRatedBooks = allBooks.sortedByDescending { it.rating }
+
+        // Check favorite status
+        topRatedBooks.forEach { book ->
+            book.isFavorite = dbHelper.isBookFavorited(book.id)
+        }
+
+        // If no books, use sample data
+        val booksToDisplay = if (topRatedBooks.isEmpty()) {
+            listOf(
+                Book(
+                    title = "Book A",
+                    author = "Author 1",
+                    rating = 4.9,
+                    pages = 250,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "Book B",
+                    author = "Author 2",
+                    rating = 4.8,
+                    pages = 310,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "Book C",
+                    author = "Author 3",
+                    rating = 5.0,
+                    pages = 150,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                ),
+                Book(
+                    title = "Book D",
+                    author = "Author 2",
+                    rating = 5.0,
+                    pages = 150,
+                    imageRes = R.drawable.book_placeholder,
+                    id = 0,
+                    isFavorite = false
+                )
+            )
+        } else {
+            topRatedBooks.take(4) // Show top 4 rated books
+        }
+
+        topRatedAdapter = BooksAdapter(
+            onBookClick = { book ->
+                openBookDetails(book)
+            },
+            onFavoriteClick = { book ->
+                toggleFavorite(book)
+            }
         )
-
-        rvTopRated.adapter = BookAdapter(list)
+        rvTopRated.adapter = topRatedAdapter
+        topRatedAdapter.submitList(booksToDisplay)
     }
-
-
 
     // ---------------------------------------------------------
     // Authors Recycler (Horizontal)
     // ---------------------------------------------------------
     private fun setupAuthorsRecycler(view: View) {
         rvAuthor = view.findViewById(R.id.rvAuthor)
-        rvAuthor.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvAuthor.layoutManager = LinearLayoutManager(
+            requireContext(),
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
 
-        authorList.apply {
-            add(Author("J.K. Rowling", R.drawable.book_placeholder))
-            add(Author("George R.R. Martin", R.drawable.book_placeholder))
-            add(Author("Agatha Christie", R.drawable.book_placeholder))
-            add(Author("Mark Twain", R.drawable.book_placeholder))
+        // Load authors from database
+        val dbAuthors = dbHelper.getAllAuthors()
+
+        // Clear existing list
+        authorList.clear()
+
+        // If no authors in database, use sample data
+        if (dbAuthors.isEmpty()) {
+            authorList.apply {
+                add(Author("J.K. Rowling", R.drawable.book_placeholder))
+                add(Author("George R.R. Martin", R.drawable.book_placeholder))
+                add(Author("Agatha Christie", R.drawable.book_placeholder))
+                add(Author("Mark Twain", R.drawable.book_placeholder))
+            }
+        } else {
+            authorList.addAll(dbAuthors)
         }
 
-        authorAdapter = AuthorAdapter(authorList)
+        // Create adapter with click listener
+        authorAdapter = AuthorAdapter(authorList) { author ->
+            openAuthorDetails(author)
+        }
         rvAuthor.adapter = authorAdapter
     }
 
@@ -176,5 +319,60 @@ class HomeFragment : Fragment() {
         tabAuthors.setOnClickListener { selectTab(tabAuthors) }
 
         selectTab(tabTopRated) // Default selected
+    }
+
+    // ---------------------------------------------------------
+    // Helper Methods
+    // ---------------------------------------------------------
+    private fun toggleFavorite(book: Book) {
+        if (book.id == 0) {
+            // This is sample data, can't favorite
+            Toast.makeText(requireContext(), "Cannot favorite sample books", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (book.isFavorite) {
+            dbHelper.removeFromFavorites(book.id)
+            book.isFavorite = false
+            Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
+        } else {
+            dbHelper.addToFavorites(book.id)
+            book.isFavorite = true
+            Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
+        }
+
+        // Refresh both adapters
+        bestsellerAdapter.notifyDataSetChanged()
+        topRatedAdapter.notifyDataSetChanged()
+    }
+
+    private fun openBookDetails(book: Book) {
+        val intent = Intent(requireContext(), BookDetailsActivity::class.java)
+        intent.putExtra("bookId", book.id)
+        intent.putExtra("title", book.title)
+        intent.putExtra("author", book.author)
+        intent.putExtra("rating", book.rating)
+        intent.putExtra("pages", book.pages)
+        intent.putExtra("coverRes", book.imageRes) // Changed from imageRes to coverRes
+        startActivity(intent)
+    }
+
+    private fun openAuthorDetails(author: Author) {
+        val intent = Intent(requireContext(), AuthorDetailsActivity::class.java)
+        intent.putExtra("name", author.name)
+        intent.putExtra("imageRes", author.imageResId)
+        // You can add bio if you have it
+        startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload data when returning to fragment
+        view?.let {
+            setupBooksRecycler(it)
+            setupTopRatedRecycler(it)
+            authorList.clear()
+            setupAuthorsRecycler(it)
+        }
     }
 }

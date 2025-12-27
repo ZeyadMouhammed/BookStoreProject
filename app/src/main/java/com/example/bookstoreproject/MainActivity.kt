@@ -11,6 +11,8 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
 
+        DatabaseSeeder(this).seedDatabase()
+
         // Load default screen
         if (savedInstanceState == null) {
             replaceFragment(HomeFragment())

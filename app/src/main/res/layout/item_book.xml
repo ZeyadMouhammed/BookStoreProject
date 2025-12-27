@@ -1,54 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="140dp"
     android:layout_height="wrap_content"
-    android:padding="8dp"
     android:layout_marginEnd="8dp"
-    android:background="@drawable/bg_book_item">
+    android:background="@drawable/bg_book_item"
+    android:orientation="vertical"
+    android:padding="8dp">
 
-    <!-- Book Cover -->
-    <ImageView
-        android:id="@+id/ivBookCover"
+    <!-- Book Cover with Favorite Icon Overlay -->
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/book_placeholder"
-        android:background="@drawable/rounded_corners" />
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/ivBookCover"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:background="@drawable/rounded_corners"
+            android:contentDescription="Book cover"
+            android:scaleType="centerCrop"
+            android:src="@drawable/book_placeholder" />
+
+        <!-- Favorite Heart Icon (Overlay) -->
+        <ImageView
+            android:id="@+id/ivFavorite"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="6dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Favorite"
+            android:padding="4dp"
+            android:src="@drawable/ic_heart"
+            app:tint="@color/primaryColor" />
+    </FrameLayout>
 
     <!-- Free / Price -->
     <TextView
         android:id="@+id/tvPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
         android:text="Free"
         android:textColor="@color/primaryColor"
-        android:textSize="12sp"
-        android:layout_marginTop="6dp"
-        android:layout_height="0dp"
-        android:layout_width="0dp"/>
+        android:textSize="12sp" />
 
     <!-- Book Title -->
     <TextView
         android:id="@+id/tvBookTitle"
-        android:text="SPARROW'S NEST"
-        android:textStyle="bold"
-        android:textColor="@color/primaryColor"
-        android:textSize="14sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:layout_marginTop="2dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:text="SPARROW'S NEST"
+        android:textColor="@color/primaryColor"
+        android:textSize="14sp"
+        android:textStyle="bold" />
 
     <!-- Author -->
     <TextView
         android:id="@+id/tvAuthor"
-        android:text="Edith Vincent"
-        android:textColor="@color/grey"
-        android:textSize="12sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:text="Edith Vincent"
+        android:textColor="@color/grey"
+        android:textSize="12sp" />
 
     <!-- Rating and Pages -->
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,32 +78,23 @@
 
         <TextView
             android:id="@+id/tvRating"
-            android:text="⭐ 5.0"
-            android:textSize="12sp"
-            android:textColor="@color/primaryColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="⭐ 5.0"
+            android:textColor="@color/primaryColor"
+            android:textSize="12sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvPages"
-            android:text="270 Pages"
-            android:textSize="12sp"
-            android:textColor="@color/grey"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="270 Pages"
+            android:textColor="@color/grey"
+            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Favorite Heart Icon -->
-    <ImageView
-        android:id="@+id/ivFavorite"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_gravity="end"
-        android:src="@drawable/ic_heart"
-        android:layout_marginTop="4dp"
-        app:tint="@color/primaryColor" />
 </LinearLayout>

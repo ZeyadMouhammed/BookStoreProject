@@ -8,13 +8,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class AuthorAdapter(private val authors: List<Author>) :
-    RecyclerView.Adapter<AuthorAdapter.AuthorViewHolder>() {
-
-    inner class AuthorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imgAuthor: ImageView = itemView.findViewById(R.id.imgAuthor)
-        val tvAuthorName: TextView = itemView.findViewById(R.id.tvAuthorName)
-    }
+class AuthorAdapter(
+    private val authorList: List<Author>,
+    private val onAuthorClick: ((Author) -> Unit)? = null
+) : RecyclerView.Adapter<AuthorAdapter.AuthorViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AuthorViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -23,18 +20,34 @@ class AuthorAdapter(private val authors: List<Author>) :
     }
 
     override fun onBindViewHolder(holder: AuthorViewHolder, position: Int) {
-        val author = authors[position]
-        holder.tvAuthorName.text = author.name
-        holder.imgAuthor.setImageResource(author.imageResId)
-
-        // Click listener to open AuthorDetailsActivity
-        holder.itemView.setOnClickListener { view ->
-            val context = view.context
-            val intent = Intent(context, AuthorDetailsActivity::class.java)
-            // For now, we'll use static author info in AuthorDetailsActivity
-            context.startActivity(intent)
-        }
+        val author = authorList[position]
+        holder.bind(author)
     }
 
-    override fun getItemCount(): Int = authors.size
+    override fun getItemCount(): Int = authorList.size
+
+    inner class AuthorViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        // Changed to match your layout IDs
+        private val authorImage: ImageView = itemView.findViewById(R.id.imgAuthor)
+        private val authorName: TextView = itemView.findViewById(R.id.tvAuthorName)
+
+        fun bind(author: Author) {
+            authorName.text = author.name
+            authorImage.setImageResource(author.imageResId)
+
+            // Set click listener on the entire item
+            itemView.setOnClickListener {
+                // If lambda is provided, use it
+                onAuthorClick?.invoke(author)
+
+                // Otherwise, open AuthorDetailsActivity (backward compatibility)
+                if (onAuthorClick == null) {
+                    val intent = Intent(itemView.context, AuthorDetailsActivity::class.java)
+                    intent.putExtra("name", author.name)
+                    intent.putExtra("imageRes", author.imageResId)
+                    itemView.context.startActivity(intent)
+                }
+            }
+        }
+    }
 }
