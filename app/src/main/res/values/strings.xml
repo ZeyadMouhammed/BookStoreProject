@@ -17,4 +17,19 @@
     <string name="enter_your_confirm_password">enter your Confirm password</string>
     <string name="or_sign_up_with">or sign up with</string>
     <string name="already_have_an_account">Already have an account?</string>
+
+    <string name="back">Back</string>
+    <string name="book">Book</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="share">Share</string>
+    <string name="book_cover">Book Cover</string>
+    <string name="hard_cover">Hard Cover</string>
+    <string name="pdf">PDF</string>
+    <string name="audiobook">Audiobook</string>
+    <string name="chapter_1">Chapter 1</string>
+    <string name="about_the_book">About the book</string>
+    <string name="reviews">Reviews</string>
+    <string name="sample">Sample</string>
+    <string name="add_to_bag">Add to Bag</string>
+
 </resources>

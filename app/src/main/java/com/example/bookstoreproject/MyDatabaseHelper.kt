@@ -384,7 +384,8 @@ class MyDatabaseHelper(context: Context) :
             author = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_BOOK_AUTHOR)),
             rating = cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_BOOK_RATING)),
             pages = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOK_PAGES)),
-            imageRes = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOK_IMAGE_RES))
+            imageRes = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOK_IMAGE_RES)),
+            id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_BOOK_ID))
         )
     }
 }

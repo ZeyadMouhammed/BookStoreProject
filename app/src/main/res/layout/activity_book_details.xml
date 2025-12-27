@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background2"
@@ -14,12 +13,11 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Top Bar -->
+        <!-- Top Bar with Back, Title, Bookmark, Share -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
             android:padding="8dp">
 
             <ImageView
@@ -27,6 +25,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_marginEnd="12dp"
+                android:contentDescription="@string/back"
                 android:src="@drawable/ic_back"
                 app:tint="@color/primaryColor" />
 
@@ -35,24 +34,27 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Book"
+                android:text="@string/book"
                 android:textColor="@color/primaryColor"
                 android:textSize="24sp"
                 android:textStyle="bold" />
 
             <ImageView
+                android:id="@+id/btnBookmark"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:contentDescription="@string/bookmark"
                 android:src="@drawable/ic_bookmark"
                 app:tint="@color/primaryColor" />
 
             <ImageView
+                android:id="@+id/btnShare"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginStart="12dp"
+                android:contentDescription="@string/share"
                 android:src="@drawable/ic_share"
                 app:tint="@color/primaryColor" />
-
         </LinearLayout>
 
         <!-- Book Cover -->
@@ -62,6 +64,7 @@
             android:layout_height="300dp"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
+            android:contentDescription="@string/book_cover"
             android:scaleType="centerCrop"
             android:src="@drawable/book_placeholder" />
 
@@ -72,10 +75,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="16dp"
-            android:text="A LOVE STORY"
             android:textColor="@color/primaryColor"
             android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="A LOVE STORY" />
 
         <!-- Author -->
         <TextView
@@ -83,9 +86,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="By Charlie Modkel"
             android:textColor="@color/grey"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            tools:text="By Charlie Modkel" />
 
         <!-- Rating and Pages -->
         <LinearLayout
@@ -93,23 +96,22 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/bookRating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:text="⭐ 5.0"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="⭐ 5.0" />
 
             <TextView
                 android:id="@+id/bookPages"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="300 Pages"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="300 Pages" />
         </LinearLayout>
 
         <!-- Format Buttons -->
@@ -117,9 +119,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="3">
+            android:gravity="center">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnHardCover"
@@ -127,7 +127,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Hard Cover"
+                android:text="@string/hard_cover"
                 android:textColor="@color/grey" />
 
             <com.google.android.material.button.MaterialButton
@@ -135,10 +135,9 @@
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
+                android:layout_marginHorizontal="4dp"
                 android:layout_weight="1"
-                android:text="PDF"
+                android:text="@string/pdf"
                 android:textColor="@color/grey" />
 
             <com.google.android.material.button.MaterialButton
@@ -147,7 +146,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Audiobook"
+                android:text="@string/audiobook"
                 android:textColor="@color/grey" />
         </LinearLayout>
 
@@ -158,10 +157,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="12dp"
-            android:text="$25.99"
             android:textColor="@color/primaryColor"
             android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="$25.99" />
 
         <!-- Chapter Button -->
         <com.google.android.material.button.MaterialButton
@@ -170,14 +169,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:backgroundTint="@color/primaryColor"
-            android:text="Chapter 1"
+            android:text="@string/chapter_1"
             android:textColor="@color/offWhite" />
 
+        <!-- Tabs: About / Reviews -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp">
 
             <TextView
                 android:id="@+id/tabAbout"
@@ -185,7 +184,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="About the book"
+                android:text="@string/about_the_book"
                 android:textStyle="bold" />
 
             <TextView
@@ -194,7 +193,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="Reviews" />
+                android:text="@string/reviews" />
         </LinearLayout>
 
         <!-- Book Description -->
@@ -203,14 +202,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Lorem Ipsum is simply dummy text of the printing..." />
+            tools:text="Lorem Ipsum is simply dummy text of the printing..." />
 
-        <!-- Sample and Add to Bag -->
+        <!-- Sample and Add to Bag Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:orientation="horizontal">
+            android:layout_marginTop="16dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSample"
@@ -218,7 +216,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/primaryColor"
-                android:text="Sample"
+                android:text="@string/sample"
                 android:textColor="@color/offWhite" />
 
             <com.google.android.material.button.MaterialButton
@@ -228,7 +226,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/primaryColor"
-                android:text="Add to Bag"
+                android:text="@string/add_to_bag"
                 android:textColor="@color/offWhite" />
         </LinearLayout>
 
