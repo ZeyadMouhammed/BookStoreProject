@@ -1,8 +1,10 @@
 package com.example.bookstoreproject
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +34,8 @@ class HomeFragment : Fragment() {
     private lateinit var bestsellerAdapter: BooksAdapter
     private lateinit var topRatedAdapter: BooksAdapter
 
+    private var currentUserId: Int = -1  // Add this
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,12 +50,20 @@ class HomeFragment : Fragment() {
         // Initialize database helper
         dbHelper = MyDatabaseHelper(requireContext())
 
+        // Get current user ID
+        currentUserId = getCurrentUserId()
+
         setupDrawer(view)
         setupCategories(view)
         setupBooksRecycler(view)
         setupTopRatedRecycler(view)
         setupAuthorsRecycler(view)
         setupTabBar(view)
+    }
+
+    // Add this helper method
+    private fun getCurrentUserId(): Int {
+        return UserSessionManager.getCurrentUserId(requireContext())
     }
 
     // ---------------------------------------------------------
@@ -125,9 +137,9 @@ class HomeFragment : Fragment() {
         // Load books from database
         val allBooks = dbHelper.getAllBooks()
 
-        // Check favorite status for each book
+        // Check favorite status for each book WITH USER ID
         allBooks.forEach { book ->
-            book.isFavorite = dbHelper.isBookFavorited(book.id)
+            book.isFavorite = dbHelper.isBookFavorited(book.id, currentUserId)
         }
 
         // If no books in database, use sample data
@@ -201,9 +213,9 @@ class HomeFragment : Fragment() {
         val allBooks = dbHelper.getAllBooks()
         val topRatedBooks = allBooks.sortedByDescending { it.rating }
 
-        // Check favorite status
+        // Check favorite status WITH USER ID
         topRatedBooks.forEach { book ->
-            book.isFavorite = dbHelper.isBookFavorited(book.id)
+            book.isFavorite = dbHelper.isBookFavorited(book.id, currentUserId)
         }
 
         // If no books, use sample data
@@ -327,16 +339,18 @@ class HomeFragment : Fragment() {
     private fun toggleFavorite(book: Book) {
         if (book.id == 0) {
             // This is sample data, can't favorite
-            Toast.makeText(requireContext(), "Cannot favorite sample books", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Cannot favorite sample books", Toast.LENGTH_SHORT)
+                .show()
             return
         }
 
+        // Toggle with USER ID
         if (book.isFavorite) {
-            dbHelper.removeFromFavorites(book.id)
+            dbHelper.removeFromFavorites(book.id, currentUserId)
             book.isFavorite = false
             Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
         } else {
-            dbHelper.addToFavorites(book.id)
+            dbHelper.addToFavorites(book.id, currentUserId)
             book.isFavorite = true
             Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
         }
@@ -353,7 +367,7 @@ class HomeFragment : Fragment() {
         intent.putExtra("author", book.author)
         intent.putExtra("rating", book.rating)
         intent.putExtra("pages", book.pages)
-        intent.putExtra("coverRes", book.imageRes) // Changed from imageRes to coverRes
+        intent.putExtra("coverRes", book.imageRes)
         startActivity(intent)
     }
 
@@ -361,18 +375,25 @@ class HomeFragment : Fragment() {
         val intent = Intent(requireContext(), AuthorDetailsActivity::class.java)
         intent.putExtra("name", author.name)
         intent.putExtra("imageRes", author.imageResId)
-        // You can add bio if you have it
         startActivity(intent)
     }
 
     override fun onResume() {
         super.onResume()
-        // Reload data when returning to fragment
-        view?.let {
-            setupBooksRecycler(it)
-            setupTopRatedRecycler(it)
-            authorList.clear()
-            setupAuthorsRecycler(it)
+
+        // Refresh user ID
+        currentUserId = UserSessionManager.getCurrentUserId(requireContext())
+
+        // CRITICAL: Clear adapters first
+        bestsellerAdapter.submitList(emptyList())
+        topRatedAdapter.submitList(emptyList())
+        authorList.clear()
+
+        // Reload everything with fresh data
+        view?.let { v ->
+            setupBooksRecycler(v)
+            setupTopRatedRecycler(v)
+            setupAuthorsRecycler(v)
         }
     }
 }

@@ -11,14 +11,15 @@ class MyDatabaseHelper(context: Context) :
 
     companion object {
         private const val DATABASE_NAME = "BookStore.db"
-        private const val DATABASE_VERSION = 3  // ← Changed from 2 to 3
+        private const val DATABASE_VERSION = 8
 
         // Tables
         private const val TABLE_BOOKS = "Books"
         private const val TABLE_AUTHORS = "Authors"
         private const val TABLE_CART = "Cart"
         private const val TABLE_FAVORITES = "Favorites"
-        private const val TABLE_MY_BOOKS = "MyBooks"  // ← New table
+        private const val TABLE_MY_BOOKS = "MyBooks"
+        private const val TABLE_USERS = "Users"
 
         // Book columns
         private const val COLUMN_BOOK_ID = "id"
@@ -35,20 +36,40 @@ class MyDatabaseHelper(context: Context) :
 
         // Cart columns
         private const val COLUMN_CART_ID = "cartId"
+        private const val COLUMN_CART_USER_ID = "userId"
         private const val COLUMN_CART_BOOK_ID = "bookId"
         private const val COLUMN_CART_QUANTITY = "quantity"
 
         // Favorites columns
         private const val COLUMN_FAV_ID = "favoriteId"
+        private const val COLUMN_FAV_USER_ID = "userId"
         private const val COLUMN_FAV_BOOK_ID = "bookId"
 
-        // MyBooks columns - New
+        // MyBooks columns
         private const val COLUMN_MY_BOOK_ID = "myBookId"
+        private const val COLUMN_MY_BOOK_USER_ID = "userId"
         private const val COLUMN_MY_BOOK_BOOK_ID = "bookId"
         private const val COLUMN_MY_BOOK_PURCHASE_DATE = "purchaseDate"
+
+        // Users columns
+        private const val COLUMN_USER_ID = "userId"
+        private const val COLUMN_USER_EMAIL = "email"
+        private const val COLUMN_USER_PASSWORD = "password"
+        private const val COLUMN_USER_NAME = "name"
+        private const val COLUMN_USER_CREATED_DATE = "createdDate"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
+        val createUsersTable = """
+            CREATE TABLE $TABLE_USERS (
+                $COLUMN_USER_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_USER_EMAIL TEXT NOT NULL UNIQUE,
+                $COLUMN_USER_PASSWORD TEXT NOT NULL,
+                $COLUMN_USER_NAME TEXT,
+                $COLUMN_USER_CREATED_DATE TEXT
+            )
+        """.trimIndent()
+
         val createBooksTable = """
             CREATE TABLE $TABLE_BOOKS (
                 $COLUMN_BOOK_ID INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,43 +92,53 @@ class MyDatabaseHelper(context: Context) :
         val createCartTable = """
             CREATE TABLE $TABLE_CART (
                 $COLUMN_CART_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                $COLUMN_CART_USER_ID INTEGER NOT NULL,
                 $COLUMN_CART_BOOK_ID INTEGER NOT NULL,
                 $COLUMN_CART_QUANTITY INTEGER NOT NULL DEFAULT 1,
-                FOREIGN KEY($COLUMN_CART_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE
+                FOREIGN KEY($COLUMN_CART_USER_ID) REFERENCES $TABLE_USERS($COLUMN_USER_ID) ON DELETE CASCADE,
+                FOREIGN KEY($COLUMN_CART_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE,
+                UNIQUE($COLUMN_CART_USER_ID, $COLUMN_CART_BOOK_ID)
             )
         """.trimIndent()
 
         val createFavoritesTable = """
             CREATE TABLE $TABLE_FAVORITES (
                 $COLUMN_FAV_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_FAV_BOOK_ID INTEGER NOT NULL UNIQUE,
-                FOREIGN KEY($COLUMN_FAV_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE
+                $COLUMN_FAV_USER_ID INTEGER NOT NULL,
+                $COLUMN_FAV_BOOK_ID INTEGER NOT NULL,
+                FOREIGN KEY($COLUMN_FAV_USER_ID) REFERENCES $TABLE_USERS($COLUMN_USER_ID) ON DELETE CASCADE,
+                FOREIGN KEY($COLUMN_FAV_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE,
+                UNIQUE($COLUMN_FAV_USER_ID, $COLUMN_FAV_BOOK_ID)
             )
         """.trimIndent()
 
-        // New MyBooks table
         val createMyBooksTable = """
             CREATE TABLE $TABLE_MY_BOOKS (
                 $COLUMN_MY_BOOK_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_MY_BOOK_BOOK_ID INTEGER NOT NULL UNIQUE,
+                $COLUMN_MY_BOOK_USER_ID INTEGER NOT NULL,
+                $COLUMN_MY_BOOK_BOOK_ID INTEGER NOT NULL,
                 $COLUMN_MY_BOOK_PURCHASE_DATE TEXT,
-                FOREIGN KEY($COLUMN_MY_BOOK_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE
+                FOREIGN KEY($COLUMN_MY_BOOK_USER_ID) REFERENCES $TABLE_USERS($COLUMN_USER_ID) ON DELETE CASCADE,
+                FOREIGN KEY($COLUMN_MY_BOOK_BOOK_ID) REFERENCES $TABLE_BOOKS($COLUMN_BOOK_ID) ON DELETE CASCADE,
+                UNIQUE($COLUMN_MY_BOOK_USER_ID, $COLUMN_MY_BOOK_BOOK_ID)
             )
         """.trimIndent()
 
+        db?.execSQL(createUsersTable)
         db?.execSQL(createBooksTable)
         db?.execSQL(createAuthorsTable)
         db?.execSQL(createCartTable)
         db?.execSQL(createFavoritesTable)
-        db?.execSQL(createMyBooksTable)  // ← Create new table
+        db?.execSQL(createMyBooksTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MY_BOOKS")  // ← Add this
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MY_BOOKS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_FAVORITES")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_CART")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_AUTHORS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_BOOKS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
         onCreate(db)
     }
 
@@ -251,20 +282,18 @@ class MyDatabaseHelper(context: Context) :
 
     // ==================== CART OPERATIONS ====================
 
-    fun addToCart(bookId: Int, quantity: Int = 1): Long {
+    fun addToCart(userId: Int, bookId: Int, quantity: Int = 1): Long {
         val db = writableDatabase
 
-        // Check if book already exists in cart
         val cursor = db.query(
             TABLE_CART,
             null,
-            "$COLUMN_CART_BOOK_ID = ?",
-            arrayOf(bookId.toString()),
+            "$COLUMN_CART_USER_ID = ? AND $COLUMN_CART_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString()),
             null, null, null
         )
 
         val result = if (cursor.moveToFirst()) {
-            // Update quantity
             val currentQty = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_CART_QUANTITY))
             val values = ContentValues().apply {
                 put(COLUMN_CART_QUANTITY, currentQty + quantity)
@@ -272,12 +301,12 @@ class MyDatabaseHelper(context: Context) :
             db.update(
                 TABLE_CART,
                 values,
-                "$COLUMN_CART_BOOK_ID = ?",
-                arrayOf(bookId.toString())
+                "$COLUMN_CART_USER_ID = ? AND $COLUMN_CART_BOOK_ID = ?",
+                arrayOf(userId.toString(), bookId.toString())
             ).toLong()
         } else {
-            // Insert new
             val values = ContentValues().apply {
+                put(COLUMN_CART_USER_ID, userId)
                 put(COLUMN_CART_BOOK_ID, bookId)
                 put(COLUMN_CART_QUANTITY, quantity)
             }
@@ -287,7 +316,7 @@ class MyDatabaseHelper(context: Context) :
         return result
     }
 
-    fun getCartItems(): List<Pair<Book, Int>> {
+    fun getCartItems(userId: Int): List<Pair<Book, Int>> {
         val items = mutableListOf<Pair<Book, Int>>()
         val db = readableDatabase
 
@@ -295,9 +324,10 @@ class MyDatabaseHelper(context: Context) :
             SELECT b.*, c.$COLUMN_CART_QUANTITY
             FROM $TABLE_BOOKS b
             INNER JOIN $TABLE_CART c ON b.$COLUMN_BOOK_ID = c.$COLUMN_CART_BOOK_ID
+            WHERE c.$COLUMN_CART_USER_ID = ?
         """
 
-        val cursor = db.rawQuery(query, null)
+        val cursor = db.rawQuery(query, arrayOf(userId.toString()))
 
         if (cursor.moveToFirst()) {
             do {
@@ -310,42 +340,51 @@ class MyDatabaseHelper(context: Context) :
         return items
     }
 
-    fun updateCartQuantity(bookId: Int, quantity: Int): Int {
+    fun updateCartQuantity(userId: Int, bookId: Int, quantity: Int): Int {
         val db = writableDatabase
         val values = ContentValues().apply {
             put(COLUMN_CART_QUANTITY, quantity)
         }
-        return db.update(TABLE_CART, values, "$COLUMN_CART_BOOK_ID = ?", arrayOf(bookId.toString()))
+        return db.update(
+            TABLE_CART,
+            values,
+            "$COLUMN_CART_USER_ID = ? AND $COLUMN_CART_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString())
+        )
     }
 
-    fun removeFromCart(bookId: Int): Int {
+    fun removeFromCart(userId: Int, bookId: Int): Int {
         val db = writableDatabase
-        return db.delete(TABLE_CART, "$COLUMN_CART_BOOK_ID = ?", arrayOf(bookId.toString()))
+        return db.delete(
+            TABLE_CART,
+            "$COLUMN_CART_USER_ID = ? AND $COLUMN_CART_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString())
+        )
     }
 
-    fun clearCart(): Int {
+    fun clearCart(userId: Int): Int {
         val db = writableDatabase
-        return db.delete(TABLE_CART, null, null)
+        return db.delete(TABLE_CART, "$COLUMN_CART_USER_ID = ?", arrayOf(userId.toString()))
     }
 
     // ==================== FAVORITE OPERATIONS ====================
 
-    fun addToFavorites(bookId: Int): Long {
+    fun addToFavorites(bookId: Int, userId: Int): Long {
         val db = writableDatabase
 
-        // Check if already favorited
         val cursor = db.query(
             TABLE_FAVORITES,
             null,
-            "$COLUMN_FAV_BOOK_ID = ?",
-            arrayOf(bookId.toString()),
+            "$COLUMN_FAV_USER_ID = ? AND $COLUMN_FAV_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString()),
             null, null, null
         )
 
         val result = if (cursor.count > 0) {
-            -1L // Already exists
+            -1L
         } else {
             val values = ContentValues().apply {
+                put(COLUMN_FAV_USER_ID, userId)
                 put(COLUMN_FAV_BOOK_ID, bookId)
             }
             db.insert(TABLE_FAVORITES, null, values)
@@ -354,12 +393,16 @@ class MyDatabaseHelper(context: Context) :
         return result
     }
 
-    fun removeFromFavorites(bookId: Int): Int {
+    fun removeFromFavorites(bookId: Int, userId: Int): Int {
         val db = writableDatabase
-        return db.delete(TABLE_FAVORITES, "$COLUMN_FAV_BOOK_ID = ?", arrayOf(bookId.toString()))
+        return db.delete(
+            TABLE_FAVORITES,
+            "$COLUMN_FAV_USER_ID = ? AND $COLUMN_FAV_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString())
+        )
     }
 
-    fun getFavoriteBooks(): List<Book> {
+    fun getFavoriteBooks(userId: Int): List<Book> {
         val books = mutableListOf<Book>()
         val db = readableDatabase
 
@@ -367,9 +410,10 @@ class MyDatabaseHelper(context: Context) :
             SELECT b.*
             FROM $TABLE_BOOKS b
             INNER JOIN $TABLE_FAVORITES f ON b.$COLUMN_BOOK_ID = f.$COLUMN_FAV_BOOK_ID
+            WHERE f.$COLUMN_FAV_USER_ID = ?
         """
 
-        val cursor = db.rawQuery(query, null)
+        val cursor = db.rawQuery(query, arrayOf(userId.toString()))
 
         if (cursor.moveToFirst()) {
             do {
@@ -380,13 +424,13 @@ class MyDatabaseHelper(context: Context) :
         return books
     }
 
-    fun isBookFavorited(bookId: Int): Boolean {
+    fun isBookFavorited(bookId: Int, userId: Int): Boolean {
         val db = readableDatabase
         val cursor = db.query(
             TABLE_FAVORITES,
             null,
-            "$COLUMN_FAV_BOOK_ID = ?",
-            arrayOf(bookId.toString()),
+            "$COLUMN_FAV_USER_ID = ? AND $COLUMN_FAV_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString()),
             null, null, null
         )
         val isFavorited = cursor.count > 0
@@ -394,24 +438,24 @@ class MyDatabaseHelper(context: Context) :
         return isFavorited
     }
 
-    // ==================== MY BOOKS OPERATIONS (NEW) ====================
+    // ==================== MY BOOKS OPERATIONS ====================
 
-    fun addToMyBooks(bookId: Int): Long {
+    fun addToMyBooks(bookId: Int, userId: Int): Long {
         val db = writableDatabase
 
-        // Check if already in my books
         val cursor = db.query(
             TABLE_MY_BOOKS,
             null,
-            "$COLUMN_MY_BOOK_BOOK_ID = ?",
-            arrayOf(bookId.toString()),
+            "$COLUMN_MY_BOOK_USER_ID = ? AND $COLUMN_MY_BOOK_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString()),
             null, null, null
         )
 
         val result = if (cursor.count > 0) {
-            -1L // Already exists
+            -1L
         } else {
             val values = ContentValues().apply {
+                put(COLUMN_MY_BOOK_USER_ID, userId)
                 put(COLUMN_MY_BOOK_BOOK_ID, bookId)
                 put(COLUMN_MY_BOOK_PURCHASE_DATE, System.currentTimeMillis().toString())
             }
@@ -421,12 +465,16 @@ class MyDatabaseHelper(context: Context) :
         return result
     }
 
-    fun removeFromMyBooks(bookId: Int): Int {
+    fun removeFromMyBooks(bookId: Int, userId: Int): Int {
         val db = writableDatabase
-        return db.delete(TABLE_MY_BOOKS, "$COLUMN_MY_BOOK_BOOK_ID = ?", arrayOf(bookId.toString()))
+        return db.delete(
+            TABLE_MY_BOOKS,
+            "$COLUMN_MY_BOOK_USER_ID = ? AND $COLUMN_MY_BOOK_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString())
+        )
     }
 
-    fun getMyBooks(): List<Book> {
+    fun getMyBooks(userId: Int): List<Book> {
         val books = mutableListOf<Book>()
         val db = readableDatabase
 
@@ -434,10 +482,11 @@ class MyDatabaseHelper(context: Context) :
             SELECT b.*
             FROM $TABLE_BOOKS b
             INNER JOIN $TABLE_MY_BOOKS m ON b.$COLUMN_BOOK_ID = m.$COLUMN_MY_BOOK_BOOK_ID
+            WHERE m.$COLUMN_MY_BOOK_USER_ID = ?
             ORDER BY m.$COLUMN_MY_BOOK_PURCHASE_DATE DESC
         """
 
-        val cursor = db.rawQuery(query, null)
+        val cursor = db.rawQuery(query, arrayOf(userId.toString()))
 
         if (cursor.moveToFirst()) {
             do {
@@ -448,18 +497,98 @@ class MyDatabaseHelper(context: Context) :
         return books
     }
 
-    fun isBookInMyBooks(bookId: Int): Boolean {
+    fun isBookInMyBooks(bookId: Int, userId: Int): Boolean {
         val db = readableDatabase
         val cursor = db.query(
             TABLE_MY_BOOKS,
             null,
-            "$COLUMN_MY_BOOK_BOOK_ID = ?",
-            arrayOf(bookId.toString()),
+            "$COLUMN_MY_BOOK_USER_ID = ? AND $COLUMN_MY_BOOK_BOOK_ID = ?",
+            arrayOf(userId.toString(), bookId.toString()),
             null, null, null
         )
         val isInMyBooks = cursor.count > 0
         cursor.close()
         return isInMyBooks
+    }
+
+    // ==================== USER OPERATIONS ====================
+
+    fun registerUser(email: String, password: String, name: String? = null): Long {
+        val db = writableDatabase
+
+        val cursor = db.query(
+            TABLE_USERS,
+            null,
+            "$COLUMN_USER_EMAIL = ?",
+            arrayOf(email),
+            null, null, null
+        )
+
+        val result = if (cursor.count > 0) {
+            cursor.close()
+            -1L
+        } else {
+            cursor.close()
+            val values = ContentValues().apply {
+                put(COLUMN_USER_EMAIL, email)
+                put(COLUMN_USER_PASSWORD, password)
+                put(COLUMN_USER_NAME, name)
+                put(COLUMN_USER_CREATED_DATE, System.currentTimeMillis().toString())
+            }
+            db.insert(TABLE_USERS, null, values)
+        }
+        return result
+    }
+
+    fun loginUser(email: String, password: String): Boolean {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            null,
+            "$COLUMN_USER_EMAIL = ? AND $COLUMN_USER_PASSWORD = ?",
+            arrayOf(email, password),
+            null, null, null
+        )
+
+        val isValid = cursor.count > 0
+        cursor.close()
+        return isValid
+    }
+
+    fun getUserByEmail(email: String): User? {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            null,
+            "$COLUMN_USER_EMAIL = ?",
+            arrayOf(email),
+            null, null, null
+        )
+
+        var user: User? = null
+        if (cursor.moveToFirst()) {
+            user = User(
+                id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_USER_ID)),
+                email = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_EMAIL)),
+                name = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_USER_NAME))
+            )
+        }
+        cursor.close()
+        return user
+    }
+
+    fun isEmailExists(email: String): Boolean {
+        val db = readableDatabase
+        val cursor = db.query(
+            TABLE_USERS,
+            null,
+            "$COLUMN_USER_EMAIL = ?",
+            arrayOf(email),
+            null, null, null
+        )
+        val exists = cursor.count > 0
+        cursor.close()
+        return exists
     }
 
     // ==================== HELPER METHODS ====================

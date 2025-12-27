@@ -31,5 +31,6 @@
     <string name="reviews">Reviews</string>
     <string name="sample">Sample</string>
     <string name="add_to_bag">Add to Bag</string>
+    <string name="username">Username</string>
 
 </resources>

@@ -1,11 +1,14 @@
 package com.example.bookstoreproject
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +31,7 @@ class BooksFragment : Fragment() {
 
     private var myBooks = mutableListOf<Book>()
     private var favoriteBooks = mutableListOf<Book>()
+    private var currentUserId: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -49,44 +53,61 @@ class BooksFragment : Fragment() {
         // Setup RecyclerViews
         setupRecyclerViews()
 
-        // Load data from database
-        loadBooksFromDatabase()
-
         // Setup tabs
         setupTabs()
 
         // Setup back button
+        // Setup back button
         view.findViewById<ImageView>(R.id.backButtonBooks)?.setOnClickListener {
-            requireActivity().onBackPressed()
+            // Navigate to home fragment
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.mainContainer, HomeFragment())
+                .commit()
+
+            // Update bottom navigation
+            (activity as? MainActivity)?.findViewById<com.google.android.material.bottomnavigation.BottomNavigationView>(
+                R.id.bottomNav
+            )?.selectedItemId = R.id.nav_home
         }
 
         // Default: show My Books
         setActiveTab(tabMyBooks)
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        // CRITICAL: Get fresh user ID every time fragment resumes
+        currentUserId = UserSessionManager.getCurrentUserId(requireContext())
+
+        Log.d("BooksFragment", "onResume - Current User ID: $currentUserId")
+
+        // Check if user is logged in
+        if (currentUserId == -1 || !UserSessionManager.isLoggedIn(requireContext())) {
+            Toast.makeText(requireContext(), "Please login first", Toast.LENGTH_SHORT).show()
+            requireActivity().finish()
+            return
+        }
+
+        // Reload data for current user
+        loadBooksFromDatabase()
+    }
+
     private fun initializeViews(view: View) {
-        // Tabs
         tabMyBooks = view.findViewById(R.id.tabMyBooks)
         tabFavorite = view.findViewById(R.id.tabFavorite)
-
-        // Content containers
         myBooksContent = view.findViewById(R.id.myBooksContent)
         favoriteContent = view.findViewById(R.id.favoriteContent)
-
-        // RecyclerViews
         recyclerViewMyBooks = view.findViewById(R.id.recyclerViewMyBooks)
         recyclerViewFavorites = view.findViewById(R.id.recyclerViewFavorites)
-
-        // Empty states
         emptyStateMyBooks = view.findViewById(R.id.emptyStateMyBooks)
         emptyStateFavorites = view.findViewById(R.id.emptyStateFavorites)
     }
 
     private fun setupRecyclerViews() {
-        // Setup My Books RecyclerView
         myBooksAdapter = BooksAdapter(
             onBookClick = { book ->
-                // TODO: Navigate to book details
+                openBookDetails(book)
             },
             onFavoriteClick = { book ->
                 toggleFavorite(book)
@@ -98,10 +119,9 @@ class BooksFragment : Fragment() {
             adapter = myBooksAdapter
         }
 
-        // Setup Favorites RecyclerView
         favoritesAdapter = BooksAdapter(
             onBookClick = { book ->
-                // TODO: Navigate to book details
+                openBookDetails(book)
             },
             onFavoriteClick = { book ->
                 toggleFavorite(book)
@@ -135,17 +155,29 @@ class BooksFragment : Fragment() {
     }
 
     private fun loadBooksFromDatabase() {
-        // Load purchased books (My Books)
-        myBooks = dbHelper.getMyBooks().toMutableList()
+        Log.d("BooksFragment", "Loading books for user: $currentUserId")
 
-        // Check favorite status for each book
-        myBooks.forEach { book ->
-            book.isFavorite = dbHelper.isBookFavorited(book.id)
+        // Clear existing data FIRST
+        myBooks.clear()
+        favoriteBooks.clear()
+
+        // Load purchased books (My Books)
+        val userBooks = dbHelper.getMyBooks(currentUserId)
+        Log.d("BooksFragment", "Found ${userBooks.size} books in My Books")
+
+        userBooks.forEach { book ->
+            book.isFavorite = dbHelper.isBookFavorited(book.id, currentUserId)
         }
+        myBooks.addAll(userBooks)
 
         // Load favorite books
-        favoriteBooks = dbHelper.getFavoriteBooks().toMutableList()
-        favoriteBooks.forEach { it.isFavorite = true }
+        val userFavorites = dbHelper.getFavoriteBooks(currentUserId)
+        Log.d("BooksFragment", "Found ${userFavorites.size} favorite books")
+
+        userFavorites.forEach { book ->
+            book.isFavorite = true
+        }
+        favoriteBooks.addAll(userFavorites)
 
         // Update UI
         updateMyBooksUI()
@@ -159,6 +191,7 @@ class BooksFragment : Fragment() {
         } else {
             recyclerViewMyBooks.visibility = View.VISIBLE
             emptyStateMyBooks.visibility = View.GONE
+            myBooksAdapter.submitList(null)
             myBooksAdapter.submitList(myBooks.toList())
         }
     }
@@ -170,6 +203,7 @@ class BooksFragment : Fragment() {
         } else {
             recyclerViewFavorites.visibility = View.VISIBLE
             emptyStateFavorites.visibility = View.GONE
+            favoritesAdapter.submitList(null)
             favoritesAdapter.submitList(favoriteBooks.toList())
         }
     }
@@ -177,24 +211,42 @@ class BooksFragment : Fragment() {
     private fun toggleFavorite(book: Book) {
         if (book.isFavorite) {
             // Remove from favorites
-            dbHelper.removeFromFavorites(book.id)
+            dbHelper.removeFromFavorites(book.id, currentUserId)
             book.isFavorite = false
             favoriteBooks.removeAll { it.id == book.id }
+            Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
         } else {
             // Add to favorites
-            dbHelper.addToFavorites(book.id)
+            dbHelper.addToFavorites(book.id, currentUserId)
             book.isFavorite = true
-            favoriteBooks.add(book)
+
+            if (!favoriteBooks.any { it.id == book.id }) {
+                favoriteBooks.add(book.copy(isFavorite = true))
+            }
+            Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
         }
 
-        // Update both adapters
-        myBooksAdapter.notifyDataSetChanged()
+        // Update the book in myBooks list
+        val myBooksIndex = myBooks.indexOfFirst { it.id == book.id }
+        if (myBooksIndex != -1) {
+            myBooks[myBooksIndex] = book.copy(isFavorite = book.isFavorite)
+        }
+
+        // Refresh both adapters
+        updateMyBooksUI()
         updateFavoritesUI()
+
+        Log.d("BooksFragment", "Favorite toggled for book ${book.id}, user $currentUserId")
     }
 
-    override fun onResume() {
-        super.onResume()
-        // Reload data when returning to this fragment
-        loadBooksFromDatabase()
+    private fun openBookDetails(book: Book) {
+        val intent = Intent(requireContext(), BookDetailsActivity::class.java)
+        intent.putExtra("bookId", book.id)
+        intent.putExtra("title", book.title)
+        intent.putExtra("author", book.author)
+        intent.putExtra("rating", book.rating)
+        intent.putExtra("pages", book.pages)
+        intent.putExtra("coverRes", book.imageRes)
+        startActivity(intent)
     }
 }

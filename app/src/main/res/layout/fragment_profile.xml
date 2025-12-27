@@ -55,14 +55,16 @@
 
         <!-- Welcome Text -->
         <TextView
+            android:id="@+id/tvWelcomeUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="32dp"
-            android:text="Welcome Nada!"
+            android:text="Welcome"
             android:textColor="@color/primaryColor"
             android:textSize="24sp"
             android:textStyle="bold" />
+
 
     </LinearLayout>
 

@@ -31,59 +31,152 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <!-- Placeholder to keep title centered -->
         <View
             android:layout_width="24dp"
             android:layout_height="24dp" />
-
     </LinearLayout>
 
-    <!-- Shopping Bag Icon with Sparkles -->
-    <TextView
-        android:layout_width="140dp"
-        android:layout_height="140dp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="32dp"
-        android:gravity="center"
-        android:text="🛍✨"
-        android:textSize="100sp" />
-
-    <!-- Title -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="12dp"
-        android:text="Your bag is empty"
-        android:textColor="@color/primaryColor"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <!-- Subtitle -->
-    <TextView
+    <!-- Empty State Layout -->
+    <LinearLayout
+        android:id="@+id/emptyStateLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="48dp"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:lineSpacingExtra="4dp"
-        android:text="Multiple products meet your different needs"
-        android:textColor="#666666"
-        android:textSize="16sp" />
+        android:orientation="vertical"
+        android:visibility="visible">
 
-    <!-- Discover Products Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnDiscoverProducts"
+        <TextView
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="32dp"
+            android:gravity="center"
+            android:text="🛍✨"
+            android:textSize="100sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="12dp"
+            android:text="Your bag is empty"
+            android:textColor="@color/primaryColor"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="48dp"
+            android:gravity="center"
+            android:lineSpacingExtra="4dp"
+            android:text="Multiple products meet your different needs"
+            android:textColor="#666666"
+            android:textSize="16sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnDiscoverProducts"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_gravity="center"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:text="Discover Products"
+            android:textColor="@color/offWhite"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/primaryColor"
+            app:cornerRadius="12dp" />
+    </LinearLayout>
+
+    <!-- Cart Content Layout -->
+    <LinearLayout
+        android:id="@+id/cartContentLayout"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_gravity="center"
-        android:text="Discover Products"
-        android:textColor="@color/offWhite"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:backgroundTint="@color/primaryColor"
-        app:cornerRadius="12dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- Cart Items RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCartItems"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="16dp" />
+
+        <!-- Order Summary -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="@color/offWhite">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Subtotal"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvSubtotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$0.00"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#CCCCCC"
+                android:layout_marginVertical="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Total"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primaryColor" />
+
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$0.00"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/primaryColor" />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCheckout"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="Checkout"
+                android:textColor="@color/offWhite"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/primaryColor"
+                app:cornerRadius="12dp" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,8 +17,10 @@ class AuthorDetailsActivity : AppCompatActivity() {
     private lateinit var authorBio: TextView
     private lateinit var btnBack: ImageView
     private lateinit var rvAuthorBooks: RecyclerView
-    private lateinit var bestBooksTitle: TextView
     private lateinit var dbHelper: MyDatabaseHelper
+    private lateinit var booksAdapter: BooksAdapter
+    private val authorBooks = mutableListOf<Book>()
+    private var currentUserId: Int = -1  // Add this
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +28,9 @@ class AuthorDetailsActivity : AppCompatActivity() {
 
         // Initialize database helper
         dbHelper = MyDatabaseHelper(this)
+
+        // Get current user ID (retrieve from SharedPreferences or intent)
+        currentUserId = getCurrentUserId()
 
         // Initialize views
         authorImage = findViewById(R.id.authorImage)
@@ -42,11 +48,11 @@ class AuthorDetailsActivity : AppCompatActivity() {
 
         // Get books by this author from database
         val allBooks = dbHelper.getAllBooks()
-        val authorBooks = allBooks.filter { it.author == name }.toMutableList()
+        authorBooks.addAll(allBooks.filter { it.author == name })
 
-        // Check favorite status for each book
+        // Check favorite status for each book WITH USER ID
         authorBooks.forEach { book ->
-            book.isFavorite = dbHelper.isBookFavorited(book.id)
+            book.isFavorite = dbHelper.isBookFavorited(book.id, currentUserId)
         }
 
         // Set author info
@@ -58,9 +64,7 @@ class AuthorDetailsActivity : AppCompatActivity() {
 
         // Setup RecyclerView for author's books
         if (authorBooks.isEmpty()) {
-            // Hide RecyclerView if no books
             rvAuthorBooks.visibility = View.GONE
-            // You can optionally show a message
             authorBio.append("\n\nThis author currently has no books in our catalog.")
         } else {
             rvAuthorBooks.visibility = View.VISIBLE
@@ -68,17 +72,21 @@ class AuthorDetailsActivity : AppCompatActivity() {
             rvAuthorBooks.layoutManager =
                 LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-            val adapter = BooksAdapter(
+            booksAdapter = BooksAdapter(
                 onBookClick = { book ->
                     openBookDetails(book)
                 },
                 onFavoriteClick = { book ->
-                    toggleFavorite(book, authorBooks)
+                    toggleFavorite(book)
                 }
             )
-            rvAuthorBooks.adapter = adapter
-            adapter.submitList(authorBooks.toList())
+            rvAuthorBooks.adapter = booksAdapter
+            booksAdapter.submitList(authorBooks.toList())
         }
+    }
+
+    private fun getCurrentUserId(): Int {
+        return UserSessionManager.getCurrentUserId(this)
     }
 
     private fun openBookDetails(book: Book) {
@@ -92,26 +100,46 @@ class AuthorDetailsActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun toggleFavorite(book: Book, booksList: MutableList<Book>) {
+    private fun toggleFavorite(book: Book) {
         if (book.id == 0) {
-            // This is a hardcoded book, can't favorite it
+            Toast.makeText(this, "Cannot favorite sample books", Toast.LENGTH_SHORT).show()
             return
         }
 
+        // Toggle in database WITH USER ID
         if (book.isFavorite) {
-            dbHelper.removeFromFavorites(book.id)
+            dbHelper.removeFromFavorites(book.id, currentUserId)
             book.isFavorite = false
+            Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show()
         } else {
-            dbHelper.addToFavorites(book.id)
+            dbHelper.addToFavorites(book.id, currentUserId)
             book.isFavorite = true
+            Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show()
         }
 
         // Find the book in the list and update it
-        val index = booksList.indexOfFirst { it.id == book.id }
+        val index = authorBooks.indexOfFirst { it.id == book.id }
         if (index != -1) {
-            booksList[index] = book
-            // Refresh the adapter
-            (rvAuthorBooks.adapter as? BooksAdapter)?.submitList(booksList.toList())
+            authorBooks[index] = book.copy(isFavorite = book.isFavorite)
+
+            booksAdapter.submitList(null)
+            booksAdapter.submitList(authorBooks.toList())
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Refresh user ID
+        currentUserId = UserSessionManager.getCurrentUserId(this)
+
+        // Refresh favorite status when returning to this activity
+        if (::booksAdapter.isInitialized && authorBooks.isNotEmpty()) {
+            authorBooks.forEach { book ->
+                book.isFavorite = dbHelper.isBookFavorited(book.id, currentUserId)
+            }
+            booksAdapter.submitList(null)
+            booksAdapter.submitList(authorBooks.toList())
         }
     }
 }

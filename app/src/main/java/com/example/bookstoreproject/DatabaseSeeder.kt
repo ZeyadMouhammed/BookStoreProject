@@ -194,28 +194,72 @@ class DatabaseSeeder(private val context: Context) {
         }
     }
 
-    fun clearDatabase() {
-        dbHelper.clearCart()
-        // Clear other tables
+    /**
+     * Clear ALL database data for ALL users (use for complete reset/testing)
+     */
+    fun clearAllDatabase() {
         val db = dbHelper.writableDatabase
+        db.execSQL("DELETE FROM Cart")
         db.execSQL("DELETE FROM Favorites")
+        db.execSQL("DELETE FROM MyBooks")
         db.execSQL("DELETE FROM Books")
         db.execSQL("DELETE FROM Authors")
+        db.execSQL("DELETE FROM Users")  // If you want to clear users too
     }
 
-    fun reseedDatabase() {
-        clearDatabase()
+    /**
+     * Clear only specific user's personal data (cart, favorites, my books)
+     * Books and Authors remain for all users
+     */
+    fun clearUserData(userId: Int) {
+        dbHelper.clearCart(userId)
+        val db = dbHelper.writableDatabase
+        db.execSQL("DELETE FROM Favorites WHERE user_id = ?", arrayOf(userId.toString()))
+        db.execSQL("DELETE FROM MyBooks WHERE user_id = ?", arrayOf(userId.toString()))
+    }
+
+    /**
+     * Completely reset and reseed the entire database (for testing/development)
+     */
+    fun reseedAllDatabase() {
+        clearAllDatabase()
         seedDatabase()
     }
 
-    // Add some books to "My Books" for testing
-    fun seedMyBooks() {
+    /**
+     * Reset only a specific user's data
+     */
+    fun reseedUserData(userId: Int) {
+        clearUserData(userId)
+        // Optionally seed some books for this user
+        seedMyBooks(userId)
+    }
+
+    /**
+     * Add some books to "My Books" for testing
+     * Pass the user ID to associate books with specific user
+     */
+    fun seedMyBooks(userId: Int) {
         val allBooks = dbHelper.getAllBooks()
         if (allBooks.size >= 3) {
             // Add first 3 books to My Books (simulate purchase)
-            dbHelper.addToMyBooks(allBooks[0].id)
-            dbHelper.addToMyBooks(allBooks[1].id)
-            dbHelper.addToMyBooks(allBooks[2].id)
+            dbHelper.addToMyBooks(allBooks[0].id, userId)
+            dbHelper.addToMyBooks(allBooks[1].id, userId)
+            dbHelper.addToMyBooks(allBooks[2].id, userId)
+        }
+    }
+
+    /**
+     * Add some favorites for testing
+     */
+    fun seedFavorites(userId: Int) {
+        val allBooks = dbHelper.getAllBooks()
+        if (allBooks.size >= 5) {
+            // Add first 5 books to favorites
+            dbHelper.addToFavorites(allBooks[0].id, userId)
+            dbHelper.addToFavorites(allBooks[1].id, userId)
+            dbHelper.addToFavorites(allBooks[3].id, userId)
+            dbHelper.addToFavorites(allBooks[4].id, userId)
         }
     }
 }
